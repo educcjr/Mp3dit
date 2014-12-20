@@ -26,9 +26,11 @@ public class Main
         }*/
 
         controller.updateID3ToV23(mp3File);
-        mp3File = controller.mp3FileFactory("v23"+new File(mp3File.getFilename()));
+        mp3File = controller.mp3FileFactory("v23"+new File(mp3File.getFilename()).getName());
         System.out.println(controller.getMp3Tag(mp3File, TagEnum.TITLE));
         System.out.println(controller.getMp3Tag(mp3File, TagEnum.ARTIST));
         System.out.println(controller.getMp3Tag(mp3File, TagEnum.ALBUM));
+        controller.setMp3Tag(mp3File,TagEnum.GENREDESCRIPTION,"Música Brasileira");
+        controller.saveMp3(mp3File,"newGenreDesc"+new File(mp3File.getFilename()).getName());
     }
 }
