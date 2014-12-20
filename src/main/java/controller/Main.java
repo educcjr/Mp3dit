@@ -22,9 +22,11 @@ public class Main
             System.out.println(controller.getMp3Tag(fileName, TagEnum.ALBUM));
         }*/
 
-        controller.updateID3ToV24(fileName);
+        controller.updateID3ToV23(fileName);
+        fileName = "v23"+fileName;
         System.out.println(controller.getMp3Tag(fileName, TagEnum.TITLE));
         System.out.println(controller.getMp3Tag(fileName, TagEnum.ARTIST));
         System.out.println(controller.getMp3Tag(fileName, TagEnum.ALBUM));
+        System.out.println(controller.setMp3Tag(fileName, TagEnum.TITLE, "novo titulo"));
     }
 }

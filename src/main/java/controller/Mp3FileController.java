@@ -61,8 +61,8 @@ public class Mp3FileController
         return r;
     }
 
-    // Atualiza ID3 de qualquer versão para ID3v24 (adiciona caso não tenha)
-    public void updateID3ToV24(String fileName)
+    // Atualiza ID3 de qualquer versão para ID3v23 (adiciona caso não tenha)
+    public void updateID3ToV23(String fileName)
     {
         Mp3File mp3File = mp3FileFactory(fileName);
 
@@ -78,17 +78,17 @@ public class Mp3FileController
             String v1Comment = id3v1Tag.getComment();
             mp3File.removeId3v1Tag();
 
-            ID3v2 id3v24Tag = new ID3v24Tag();
-            id3v24Tag.setTrack(v1Track);
-            id3v24Tag.setArtist(v1Artist);
-            id3v24Tag.setTitle(v1Title);
-            id3v24Tag.setAlbum(v1Album);
-            id3v24Tag.setYear(v1Year);
-            id3v24Tag.setGenre(v1Genre);
-            id3v24Tag.setComment(v1Comment);
-            mp3File.setId3v2Tag(id3v24Tag);
+            ID3v2 id3v23Tag = new ID3v23Tag();
+            id3v23Tag.setTrack(v1Track);
+            id3v23Tag.setArtist(v1Artist);
+            id3v23Tag.setTitle(v1Title);
+            id3v23Tag.setAlbum(v1Album);
+            id3v23Tag.setYear(v1Year);
+            id3v23Tag.setGenre(v1Genre);
+            id3v23Tag.setComment(v1Comment);
+            mp3File.setId3v2Tag(id3v23Tag);
 
-            System.out.println("ID3v1 atualizado para ID3v24.");
+            System.out.println("ID3v1 atualizado para ID3v23.");
         }
         else if(mp3File.hasId3v2Tag())
         {
@@ -110,35 +110,43 @@ public class Mp3FileController
             String v2Encoder = id3v2Tag.getEncoder();
             mp3File.removeId3v2Tag();
 
-            ID3v2 id3v24Tag = new ID3v24Tag();
-            id3v24Tag.setTrack(v2Track);
-            id3v24Tag.setArtist(v2Artist);
-            id3v24Tag.setTitle(v2Title);
-            id3v24Tag.setAlbum(v2Album);
-            id3v24Tag.setYear(v2Year);
-            id3v24Tag.setGenre(v2Genre);
-            id3v24Tag.setGenreDescription(v2GenreDescription);
-            id3v24Tag.setComment(v2Comment);
-            id3v24Tag.setComposer(v2Composer);
-            id3v24Tag.setPublisher(v2Publisher);
-            id3v24Tag.setOriginalArtist(v2OriginalArtist);
-            id3v24Tag.setAlbumArtist(v2AlbumArtist);
-            id3v24Tag.setCopyright(v2Copyright);
-            id3v24Tag.setUrl(v2Url);
-            id3v24Tag.setEncoder(v2Encoder);
-            mp3File.setId3v2Tag(id3v24Tag);
+            ID3v2 id3v23Tag = new ID3v23Tag();
+            id3v23Tag.setTrack(v2Track);
+            id3v23Tag.setArtist(v2Artist);
+            id3v23Tag.setTitle(v2Title);
+            id3v23Tag.setAlbum(v2Album);
+            id3v23Tag.setYear(v2Year);
+            id3v23Tag.setGenre(v2Genre);
+            try
+            {
+                id3v23Tag.setGenreDescription(v2GenreDescription);
+            }
+            catch (IllegalArgumentException iae)
+            {
+                System.out.println("IllegalArgumentException(updateID3ToV23): "+iae.getMessage());
+                // TODO: Métodos recebem Mp3File e não String
+            }
+            id3v23Tag.setComment(v2Comment);
+            id3v23Tag.setComposer(v2Composer);
+            id3v23Tag.setPublisher(v2Publisher);
+            id3v23Tag.setOriginalArtist(v2OriginalArtist);
+            id3v23Tag.setAlbumArtist(v2AlbumArtist);
+            id3v23Tag.setCopyright(v2Copyright);
+            id3v23Tag.setUrl(v2Url);
+            id3v23Tag.setEncoder(v2Encoder);
+            mp3File.setId3v2Tag(id3v23Tag);
 
-            System.out.println("ID3v2x atualizado para ID3v24.");
+            System.out.println("ID3v2x atualizado para ID3v23.");
         }
         else
         {
-            ID3v2 id3v24Tag = new ID3v24Tag();
-            mp3File.setId3v2Tag(id3v24Tag);
+            ID3v2 id3v23Tag = new ID3v23Tag();
+            mp3File.setId3v2Tag(id3v23Tag);
 
-            System.out.println("ID3v24 adicionado.");
+            System.out.println("ID3v23 adicionado.");
         }
 
-        saveMp3(fileName,"v24"+fileName);
+        saveMp3(mp3File,"v23"+fileName);
     }
 
     // Retorna tag escolhida de um mp3 (ID3v2x)
@@ -308,14 +316,11 @@ public class Mp3FileController
     }
 
     // Salva um mp3 com um novo nome
-    public boolean saveMp3(String fileName, String newFileName)
+    public boolean saveMp3(Mp3File mp3File, String newFileName)
     {
         boolean r = false;
 
-        Mp3File mp3File = mp3FileFactory(fileName);
 
-        if (fileExists(new File(this.workPath+fileName)))
-        {
             try
             {
                 mp3File.save(this.workPath+newFileName);
@@ -331,7 +336,6 @@ public class Mp3FileController
             {
                 System.out.println("NotSupportedException(saveMp3): "+nse.getMessage());
             }
-        }
 
         return r;
     }
