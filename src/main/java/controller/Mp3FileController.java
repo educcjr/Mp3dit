@@ -12,89 +12,61 @@ import java.nio.file.StandardCopyOption;
 public class Mp3FileController
 {
     private String workPath;
-    private File file;
-    private Mp3File mp3File;
-    private ID3v2 mp3ID3Tag;
 
-    // Contrutor define o caminho global
+    // Contrutor define o caminho atual
     public Mp3FileController(String workPath)
     {
         this.workPath = workPath +"/";
-        this.file = new File("empty");
     }
 
-    // Seleciona mp3 a ser editado e adiciona ou atualiza tags (ID3v24)
-    public boolean setMp3File(String fileName)
+    // Retorna um objeto Mp3File
+    public Mp3File mp3FileFactory(String fileName)
     {
-        boolean r = false;
+        Mp3File mp3file = null;
 
         try
         {
-            String fileLocation = this.workPath +fileName;
-            this.file = new File(fileLocation);
-            this.mp3File = new Mp3File(fileLocation);
-
-            if (!this.mp3File.hasId3v2Tag())
-            {
-                if (this.mp3File.hasId3v1Tag())
-                {
-                    if(updateV1ToV24())
-                    {
-                        System.out.println("Tags ID3v1 atualizadas para ID3v24.");
-                        r = true;
-                    }
-                }
-                else
-                {
-                    ID3v2 id3v2Tag = new ID3v24Tag();
-                    this.mp3File.setId3v2Tag(id3v2Tag);
-
-                    System.out.println("Tags ID3v24 adicionadas.");
-                    r = true;
-                }
-            }
-
-            this.mp3ID3Tag = this.mp3File.getId3v2Tag();
+            mp3file = new Mp3File(this.workPath+fileName);
         }
         catch (IOException ioe)
         {
-            System.out.println("IOException(setMp3File): "+ioe.getMessage());
+            System.out.println("IOException(mp3FileFactory): "+ioe.getMessage());
         }
         catch (UnsupportedTagException ute)
         {
-            System.out.println("UnsupportedTagException(setMp3File): "+ute.getMessage());
+            System.out.println("UnsupportedTagException(mp3FileFactory): "+ute.getMessage());
         }
         catch(InvalidDataException ide)
         {
-            System.out.println("InvalidDataException(setMp3File): "+ide.getMessage());
+            System.out.println("InvalidDataException(mp3FileFactory): "+ide.getMessage());
         }
 
-        return r;
+        return mp3file;
     }
 
-    // Verifica se o mp3 global (File) existe
-    public boolean fileExists()
+    // Verifica se um objeto do tipo File existe
+    public boolean fileExists(File file)
     {
         boolean r = false;
 
-        if (this.file.exists())
+        if (file.exists())
         {
             r = true;
         }
         else
         {
-            System.out.println("Arquivo inexistente. ("+this.workPath +this.file.getName()+")");
+            System.out.println("Arquivo inexistente. ("+this.workPath +file.getName()+")");
         }
 
         return r;
     }
 
-    // Atualiza ID3v1 para ID3v24
-    public boolean updateV1ToV24()
+    // Atualiza ID3 de qualquer versão para ID3v24 (adiciona caso não tenha)
+    public void updateID3ToV24(String fileName)
     {
-        boolean r = false;
+        Mp3File mp3File = mp3FileFactory(fileName);
 
-        if (mp3File.hasId3v1Tag())
+        if(mp3File.hasId3v1Tag())
         {
             ID3v1 id3v1Tag = mp3File.getId3v1Tag();
             String v1Track = id3v1Tag.getTrack();
@@ -104,79 +76,127 @@ public class Mp3FileController
             String v1Year = id3v1Tag.getYear();
             int v1Genre = id3v1Tag.getGenre();
             String v1Comment = id3v1Tag.getComment();
-
             mp3File.removeId3v1Tag();
 
-            ID3v2 id3v2Tag = new ID3v24Tag();
-            id3v2Tag.setTrack(v1Track);
-            id3v2Tag.setArtist(v1Artist);
-            id3v2Tag.setTitle(v1Title);
-            id3v2Tag.setAlbum(v1Album);
-            id3v2Tag.setYear(v1Year);
-            id3v2Tag.setGenre(v1Genre);
-            id3v2Tag.setComment(v1Comment);
+            ID3v2 id3v24Tag = new ID3v24Tag();
+            id3v24Tag.setTrack(v1Track);
+            id3v24Tag.setArtist(v1Artist);
+            id3v24Tag.setTitle(v1Title);
+            id3v24Tag.setAlbum(v1Album);
+            id3v24Tag.setYear(v1Year);
+            id3v24Tag.setGenre(v1Genre);
+            id3v24Tag.setComment(v1Comment);
+            mp3File.setId3v2Tag(id3v24Tag);
 
-            mp3File.setId3v2Tag(id3v2Tag);
+            System.out.println("ID3v1 atualizado para ID3v24.");
+        }
+        else if(mp3File.hasId3v2Tag())
+        {
+            ID3v2 id3v2Tag = mp3File.getId3v2Tag();
+            String v2Track = id3v2Tag.getTrack();
+            String v2Artist = id3v2Tag.getArtist();
+            String v2Title = id3v2Tag.getTitle();
+            String v2Album = id3v2Tag.getAlbum();
+            String v2Year = id3v2Tag.getYear();
+            int v2Genre = id3v2Tag.getGenre();
+            String v2GenreDescription = id3v2Tag.getGenreDescription();
+            String v2Comment = id3v2Tag.getComment();
+            String v2Composer = id3v2Tag.getComposer();
+            String v2Publisher = id3v2Tag.getPublisher();
+            String v2OriginalArtist = id3v2Tag.getOriginalArtist();
+            String v2AlbumArtist = id3v2Tag.getAlbumArtist();
+            String v2Copyright = id3v2Tag.getCopyright();
+            String v2Url = id3v2Tag.getUrl();
+            String v2Encoder = id3v2Tag.getEncoder();
+            mp3File.removeId3v2Tag();
 
-            r = true;
+            ID3v2 id3v24Tag = new ID3v24Tag();
+            id3v24Tag.setTrack(v2Track);
+            id3v24Tag.setArtist(v2Artist);
+            id3v24Tag.setTitle(v2Title);
+            id3v24Tag.setAlbum(v2Album);
+            id3v24Tag.setYear(v2Year);
+            id3v24Tag.setGenre(v2Genre);
+            id3v24Tag.setGenreDescription(v2GenreDescription);
+            id3v24Tag.setComment(v2Comment);
+            id3v24Tag.setComposer(v2Composer);
+            id3v24Tag.setPublisher(v2Publisher);
+            id3v24Tag.setOriginalArtist(v2OriginalArtist);
+            id3v24Tag.setAlbumArtist(v2AlbumArtist);
+            id3v24Tag.setCopyright(v2Copyright);
+            id3v24Tag.setUrl(v2Url);
+            id3v24Tag.setEncoder(v2Encoder);
+            mp3File.setId3v2Tag(id3v24Tag);
+
+            System.out.println("ID3v2x atualizado para ID3v24.");
+        }
+        else
+        {
+            ID3v2 id3v24Tag = new ID3v24Tag();
+            mp3File.setId3v2Tag(id3v24Tag);
+
+            System.out.println("ID3v24 adicionado.");
         }
 
-        return r;
+        saveMp3(fileName,"v24"+fileName);
     }
 
-    // Retorna qualquer tag do mp3 global (ID3v2)
-    public String getMp3Tag(TagEnum tag)
+    // Retorna tag escolhida de um mp3 (ID3v2x)
+    public String getMp3Tag(String fileName, TagEnum tag)
     {
         String mp3Tag = null;
 
-        if (fileExists())
+        Mp3File mp3file = mp3FileFactory(fileName);
+
+        if (fileExists(new File(this.workPath+fileName)) && mp3file.hasId3v2Tag())
         {
+            ID3v2 mp3ID3v2Tag = mp3file.getId3v2Tag();
             switch (tag)
             {
                 case TRACK:
-                    mp3Tag = this.mp3ID3Tag.getTrack();
+                    mp3Tag = mp3ID3v2Tag.getTrack();
                     break;
                 case ARTIST:
-                    mp3Tag = this.mp3ID3Tag.getArtist();
+                    mp3Tag = mp3ID3v2Tag.getArtist();
                     break;
                 case TITLE:
-                    mp3Tag = this.mp3ID3Tag.getTitle();
+                    mp3Tag = mp3ID3v2Tag.getTitle();
                     break;
                 case ALBUM:
-                    mp3Tag = this.mp3ID3Tag.getAlbum();
+                    mp3Tag = mp3ID3v2Tag.getAlbum();
                     break;
                 case YEAR:
-                    mp3Tag = this.mp3ID3Tag.getYear();
+                    mp3Tag = mp3ID3v2Tag.getYear();
                     break;
                 case GENRE:
-                    mp3Tag = String.valueOf(this.mp3ID3Tag.getGenre());
+                    mp3Tag = String.valueOf(mp3ID3v2Tag.getGenre());
                     break;
                 case GENREDESCRIPTION:
-                    mp3Tag = this.mp3ID3Tag.getGenreDescription();
+                    mp3Tag = mp3ID3v2Tag.getGenreDescription();
                     break;
                 case COMMENT:
-                    mp3Tag = this.mp3ID3Tag.getComment();
+                    mp3Tag = mp3ID3v2Tag.getComment();
                     break;
                 case COMPOSER:
-                    mp3Tag = this.mp3ID3Tag.getComposer();
+                    mp3Tag = mp3ID3v2Tag.getComposer();
                     break;
                 case PUBLISHER:
-                    mp3Tag = this.mp3ID3Tag.getPublisher();
+                    mp3Tag = mp3ID3v2Tag.getPublisher();
                     break;
                 case ORIGINALARTIST:
-                    mp3Tag = this.mp3ID3Tag.getOriginalArtist();
+                    mp3Tag = mp3ID3v2Tag.getOriginalArtist();
                     break;
                 case ALBUMARTIST:
-                    mp3Tag = this.mp3ID3Tag.getAlbumArtist();
+                    mp3Tag = mp3ID3v2Tag.getAlbumArtist();
                     break;
                 case COPYRIGHT:
-                    mp3Tag = this.mp3ID3Tag.getCopyright();
+                    mp3Tag = mp3ID3v2Tag.getCopyright();
                     break;
                 case URL:
-                    mp3Tag = this.mp3ID3Tag.getUrl();
+                    mp3Tag = mp3ID3v2Tag.getUrl();
                     break;
                 case ENCODER:
-                    mp3Tag = this.mp3ID3Tag.getEncoder();
+                    mp3Tag = mp3ID3v2Tag.getEncoder();
                     break;
             }
         }
@@ -184,62 +204,66 @@ public class Mp3FileController
         return mp3Tag;
     }
 
-    // Altera qualquer tag do mp3 global (ID3v2)
-    public boolean setMp3Tag(TagEnum tag, String newTag)
+    // Altera qualquer tag do mp3 global (ID3v23 e ID3v24)
+    public boolean setMp3Tag(String fileName, TagEnum tag, String newTag)
     {
         boolean r = false;
 
-        if (fileExists())
+        Mp3File mp3file = mp3FileFactory(fileName);
+
+        if(fileExists(new File(this.workPath+fileName)) && mp3file.hasId3v2Tag() && newTag!=null)
         {
+            ID3v2 mp3ID3v2Tag = mp3file.getId3v2Tag();
             switch (tag)
             {
                 case TRACK:
-                    this.mp3ID3Tag.setTrack(newTag);
+                    mp3ID3v2Tag.setTrack(newTag);
                     break;
                 case ARTIST:
-                    this.mp3ID3Tag.setArtist(newTag);
+                    mp3ID3v2Tag.setArtist(newTag);
                     break;
                 case TITLE:
-                    this.mp3ID3Tag.setTitle(newTag);
+                    mp3ID3v2Tag.setTitle(newTag);
                     break;
                 case ALBUM:
-                    this.mp3ID3Tag.setAlbum(newTag);
+                    mp3ID3v2Tag.setAlbum(newTag);
                     break;
                 case YEAR:
-                    this.mp3ID3Tag.setYear(newTag);
+                    mp3ID3v2Tag.setYear(newTag);
                     break;
                 case GENRE:
-                    this.mp3ID3Tag.setGenre(Integer.parseInt(newTag));
+                    mp3ID3v2Tag.setGenre(Integer.parseInt(newTag));
                     break;
                 case GENREDESCRIPTION:
-                    this.mp3ID3Tag.setGenreDescription(newTag);
+                    mp3ID3v2Tag.setGenreDescription(newTag);
                     break;
                 case COMMENT:
-                    this.mp3ID3Tag.setComment(newTag);
+                    mp3ID3v2Tag.setComment(newTag);
                     break;
                 case COMPOSER:
-                    this.mp3ID3Tag.setComposer(newTag);
+                    mp3ID3v2Tag.setComposer(newTag);
                     break;
                 case PUBLISHER:
-                    this.mp3ID3Tag.setPublisher(newTag);
+                    mp3ID3v2Tag.setPublisher(newTag);
                     break;
                 case ORIGINALARTIST:
-                    this.mp3ID3Tag.setOriginalArtist(newTag);
+                    mp3ID3v2Tag.setOriginalArtist(newTag);
                     break;
                 case ALBUMARTIST:
-                    this.mp3ID3Tag.setAlbumArtist(newTag);
+                    mp3ID3v2Tag.setAlbumArtist(newTag);
                     break;
                 case COPYRIGHT:
-                    this.mp3ID3Tag.setCopyright(newTag);
+                    mp3ID3v2Tag.setCopyright(newTag);
                     break;
                 case URL:
-                    this.mp3ID3Tag.setUrl(newTag);
+                    mp3ID3v2Tag.setUrl(newTag);
                     break;
                 case ENCODER:
-                    this.mp3ID3Tag.setEncoder(newTag);
+                    mp3ID3v2Tag.setEncoder(newTag);
                     break;
             }
 
+            System.out.println(tag.name()+" tag alterada. ("+this.workPath+fileName+")");
             r = true;
         }
 
@@ -247,16 +271,16 @@ public class Mp3FileController
     }
 
     // Salva novo mp3 e guarda o antigo em pasta backup
-    public boolean saveMp3()
+    public boolean saveMp3AndBackup(String fileName, String backupDirectory)
     {
         boolean r = false;
 
-        if (fileExists())
-        {
-            File file = this.file;
-            String backupDirectory = "old";
+        Mp3File mp3File = mp3FileFactory(fileName);
+        File file = new File(this.workPath+fileName);
 
-            if(new File(this.workPath +backupDirectory).mkdirs())
+        if (fileExists(file))
+        {
+            if (new File(this.workPath +backupDirectory).mkdirs())
             {
                 System.out.println("Diretório criado");
             }
@@ -264,7 +288,7 @@ public class Mp3FileController
             try
             {
                 mp3File.save(this.workPath +backupDirectory+"/"+file.getName());
-                Files.move(Paths.get(this.workPath +file.getName()),Paths.get(this.workPath +backupDirectory+"/"+file.getName().substring(0,file.getName().length()-4)+"-old.mp3"), StandardCopyOption.REPLACE_EXISTING);
+                Files.move(Paths.get(this.workPath + file.getName()), Paths.get(this.workPath + backupDirectory + "/" + file.getName().substring(0, file.getName().length() - 4) + "-old.mp3"), StandardCopyOption.REPLACE_EXISTING);
                 Files.move(Paths.get(this.workPath +backupDirectory+"/"+file.getName()),Paths.get(this.workPath +file.getName()), StandardCopyOption.REPLACE_EXISTING);
 
                 System.out.println("Novo mp3 salvo e backup criado com sucesso.");
@@ -272,9 +296,38 @@ public class Mp3FileController
             }
             catch(IOException ioe)
             {
+                System.out.println("IOException(saveMp3AndBackup): "+ioe.getMessage());
+            }
+            catch(NotSupportedException nse)
+            {
+                System.out.println("NotSupportedException(saveMp3AndBackup): "+nse.getMessage());
+            }
+        }
+
+        return r;
+    }
+
+    // Salva um mp3 com um novo nome
+    public boolean saveMp3(String fileName, String newFileName)
+    {
+        boolean r = false;
+
+        Mp3File mp3File = mp3FileFactory(fileName);
+
+        if (fileExists(new File(this.workPath+fileName)))
+        {
+            try
+            {
+                mp3File.save(this.workPath+newFileName);
+
+                System.out.println("Novo mp3 salvo. ("+this.workPath+newFileName+")");
+                r = true;
+            }
+            catch(IOException ioe)
+            {
                 System.out.println("IOException(saveMp3): "+ioe.getMessage());
             }
-            catch (NotSupportedException nse)
+            catch(NotSupportedException nse)
             {
                 System.out.println("NotSupportedException(saveMp3): "+nse.getMessage());
             }

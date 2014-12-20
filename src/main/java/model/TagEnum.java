@@ -16,5 +16,5 @@ public enum TagEnum
     ALBUMARTIST,
     COPYRIGHT,
     URL,
-    ENCODER;
+    ENCODER
 }

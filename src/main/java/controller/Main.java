@@ -6,24 +6,25 @@ public class Main
 {
     public static void main(String[] args)
     {
-        Mp3FileController controller = new Mp3FileController("C:/Users/ecastro/Desktop");
+        Mp3FileController controller = new Mp3FileController("C:/Users/duds410/Desktop");
 
-        controller.setMp3File("MusicaTeste.mp3");
-        System.out.println(controller.getMp3Tag(TagEnum.TITLE));
-        System.out.println(controller.getMp3Tag(TagEnum.TRACK));
-        System.out.println(controller.getMp3Tag(TagEnum.GENRE));
-        System.out.println(controller.getMp3Tag(TagEnum.GENREDESCRIPTION));
+        String fileName = "Edu Sereno - Agenda.mp3";
 
-        controller.setMp3Tag(TagEnum.TITLE, "ETA");
-        controller.setMp3Tag(TagEnum.TRACK,"3");
-        if(controller.saveMp3())
+        System.out.println(controller.getMp3Tag(fileName, TagEnum.TITLE));
+        System.out.println(controller.getMp3Tag(fileName, TagEnum.ARTIST));
+        System.out.println(controller.getMp3Tag(fileName, TagEnum.ALBUM));
+
+        /*if(controller.setMp3Tag(fileName,TagEnum.TITLE,"TESTE"))
         {
-            System.out.println(controller.getMp3Tag(TagEnum.TITLE));
-            System.out.println(controller.getMp3Tag(TagEnum.TRACK));
-            System.out.println(controller.getMp3Tag(TagEnum.GENRE));
-            System.out.println(controller.getMp3Tag(TagEnum.GENREDESCRIPTION));
-        }
+            controller.saveMp3AndBackup(fileName,"old");
+            System.out.println(controller.getMp3Tag(fileName, TagEnum.TITLE));
+            System.out.println(controller.getMp3Tag(fileName, TagEnum.ARTIST));
+            System.out.println(controller.getMp3Tag(fileName, TagEnum.ALBUM));
+        }*/
 
-
+        controller.updateID3ToV24(fileName);
+        System.out.println(controller.getMp3Tag(fileName, TagEnum.TITLE));
+        System.out.println(controller.getMp3Tag(fileName, TagEnum.ARTIST));
+        System.out.println(controller.getMp3Tag(fileName, TagEnum.ALBUM));
     }
 }
