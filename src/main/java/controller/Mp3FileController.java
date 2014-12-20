@@ -45,27 +45,29 @@ public class Mp3FileController
     }
 
     // Verifica se um objeto do tipo File existe
-    public boolean fileExists(File file)
+    public boolean fileExists(Mp3File mp3File)
     {
         boolean r = false;
 
-        if (file.exists())
+        if (mp3File!=null)
         {
-            r = true;
-        }
-        else
-        {
-            System.out.println("Arquivo inexistente. ("+this.workPath +file.getName()+")");
+            File file = new File(mp3File.getFilename());
+            if (file.exists())
+            {
+                r = true;
+            }
+            else
+            {
+                System.out.println("Arquivo inexistente. ("+this.workPath +file.getName()+")");
+            }
         }
 
         return r;
     }
 
     // Atualiza ID3 de qualquer versão para ID3v23 (adiciona caso não tenha)
-    public void updateID3ToV23(String fileName)
+    public void updateID3ToV23(Mp3File mp3File)
     {
-        Mp3File mp3File = mp3FileFactory(fileName);
-
         if(mp3File.hasId3v1Tag())
         {
             ID3v1 id3v1Tag = mp3File.getId3v1Tag();
@@ -146,19 +148,18 @@ public class Mp3FileController
             System.out.println("ID3v23 adicionado.");
         }
 
-        saveMp3(mp3File,"v23"+fileName);
+        File file = new File(mp3File.getFilename());
+        saveMp3(mp3File,"v23"+file.getName());
     }
 
     // Retorna tag escolhida de um mp3 (ID3v2x)
-    public String getMp3Tag(String fileName, TagEnum tag)
+    public String getMp3Tag(Mp3File mp3File, TagEnum tag)
     {
         String mp3Tag = null;
 
-        Mp3File mp3file = mp3FileFactory(fileName);
-
-        if (fileExists(new File(this.workPath+fileName)) && mp3file.hasId3v2Tag())
+        if (fileExists(mp3File) && mp3File.hasId3v2Tag())
         {
-            ID3v2 mp3ID3v2Tag = mp3file.getId3v2Tag();
+            ID3v2 mp3ID3v2Tag = mp3File.getId3v2Tag();
             switch (tag)
             {
                 case TRACK:
@@ -213,15 +214,13 @@ public class Mp3FileController
     }
 
     // Altera qualquer tag do mp3 global (ID3v23 e ID3v24)
-    public boolean setMp3Tag(String fileName, TagEnum tag, String newTag)
+    public boolean setMp3Tag(Mp3File mp3File, TagEnum tag, String newTag)
     {
         boolean r = false;
 
-        Mp3File mp3file = mp3FileFactory(fileName);
-
-        if(fileExists(new File(this.workPath+fileName)) && mp3file.hasId3v2Tag() && newTag!=null)
+        if(fileExists(mp3File) && mp3File.hasId3v2Tag() && newTag!=null)
         {
-            ID3v2 mp3ID3v2Tag = mp3file.getId3v2Tag();
+            ID3v2 mp3ID3v2Tag = mp3File.getId3v2Tag();
             switch (tag)
             {
                 case TRACK:
@@ -271,7 +270,7 @@ public class Mp3FileController
                     break;
             }
 
-            System.out.println(tag.name()+" tag alterada. ("+this.workPath+fileName+")");
+            System.out.println(tag.name()+" tag alterada. ("+mp3File.getFilename()+")");
             r = true;
         }
 
@@ -279,14 +278,13 @@ public class Mp3FileController
     }
 
     // Salva novo mp3 e guarda o antigo em pasta backup
-    public boolean saveMp3AndBackup(String fileName, String backupDirectory)
+    public boolean saveMp3AndBackup(Mp3File mp3File, String backupDirectory)
     {
         boolean r = false;
 
-        Mp3File mp3File = mp3FileFactory(fileName);
-        File file = new File(this.workPath+fileName);
+        File file = new File(mp3File.getFilename());
 
-        if (fileExists(file))
+        if (fileExists(mp3File))
         {
             if (new File(this.workPath +backupDirectory).mkdirs())
             {
@@ -320,7 +318,8 @@ public class Mp3FileController
     {
         boolean r = false;
 
-
+        if (fileExists(mp3File))
+        {
             try
             {
                 mp3File.save(this.workPath+newFileName);
@@ -336,6 +335,7 @@ public class Mp3FileController
             {
                 System.out.println("NotSupportedException(saveMp3): "+nse.getMessage());
             }
+        }
 
         return r;
     }
