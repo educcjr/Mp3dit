@@ -287,30 +287,33 @@ public class Mp3FileController
         boolean r = false;
 
         File file = new File(mp3File.getFilename());
+        backupDirectory = backupDirectory+"/";
 
         if (fileExists(mp3File))
         {
-            if (new File(this.workPath +backupDirectory).mkdirs())
+            if (new File(this.workPath+backupDirectory).mkdirs())
             {
                 System.out.println("Diretório criado");
             }
 
             try
             {
-                mp3File.save(this.workPath +backupDirectory+"/"+file.getName());
-                Files.move(Paths.get(this.workPath + file.getName()), Paths.get(this.workPath + backupDirectory + "/" + file.getName().substring(0, file.getName().length() - 4) + "-old.mp3"), StandardCopyOption.REPLACE_EXISTING);
-                Files.move(Paths.get(this.workPath +backupDirectory+"/"+file.getName()),Paths.get(this.workPath +file.getName()), StandardCopyOption.REPLACE_EXISTING);
+                saveMp3(mp3File, file.getName().substring(0, file.getName().length() - 4) + "NEW.mp3");
+                Files.move(Paths.get(mp3File.getFilename()),Paths.get(this.workPath+backupDirectory+file.getName()),StandardCopyOption.REPLACE_EXISTING);
 
                 System.out.println("Novo mp3 salvo e backup criado com sucesso.");
+
+                file = new File(mp3File.getFilename().substring(0,mp3File.getFilename().length()-4)+"NEW.mp3");
+                if (file.renameTo(new File(mp3File.getFilename())))
+                {
+                    System.out.println("Arquivo renomeado.");
+                }
+
                 r = true;
             }
             catch(IOException ioe)
             {
                 System.out.println("IOException(saveMp3AndBackup): "+ioe.getMessage());
-            }
-            catch(NotSupportedException nse)
-            {
-                System.out.println("NotSupportedException(saveMp3AndBackup): "+nse.getMessage());
             }
         }
 

@@ -40,7 +40,6 @@ public class Main
             System.out.println(mp3file.getId3v1Tag().getGenreDescription());
         }
 
-        //mp3file.getId3v2Tag().setGenreDescription("Banana");
-
+        controller.saveMp3AndBackup(mp3file,"bak");
     }
 }
