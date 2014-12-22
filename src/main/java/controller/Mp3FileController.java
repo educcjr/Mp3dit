@@ -68,7 +68,14 @@ public class Mp3FileController
     // Atualiza ID3 de qualquer versão para ID3v23 (adiciona caso não tenha)
     public void updateID3ToV23(Mp3File mp3File)
     {
-        if(mp3File.hasId3v1Tag())
+        if (!mp3File.hasId3v2Tag() && !mp3File.hasId3v1Tag())
+        {
+            ID3v2 id3v23Tag = new ID3v23Tag();
+            mp3File.setId3v2Tag(id3v23Tag);
+
+            System.out.println("Mp3 não possui ID3. ID3v23 adicionado.");
+        }
+        else if(mp3File.hasId3v1Tag() && !mp3File.hasId3v2Tag())
         {
             String v1Track = getMp3Tag(mp3File, TagEnum.TRACK);
             String v1Artist = getMp3Tag(mp3File, TagEnum.ARTIST);
@@ -77,7 +84,6 @@ public class Mp3FileController
             String v1Year = getMp3Tag(mp3File, TagEnum.YEAR);
             String v1Genre = getMp3Tag(mp3File, TagEnum.GENRE);
             String v1Comment = getMp3Tag(mp3File, TagEnum.COMMENT);
-            mp3File.removeId3v1Tag();
 
             ID3v2 id3v23Tag = new ID3v23Tag();
             mp3File.setId3v2Tag(id3v23Tag);
@@ -89,9 +95,9 @@ public class Mp3FileController
             setMp3Tag(mp3File, TagEnum.GENRE, String.valueOf(v1Genre));
             setMp3Tag(mp3File, TagEnum.COMMENT, v1Comment);
 
-            System.out.println("ID3v1 atualizado para ID3v23.");
+            System.out.println("Mp3 possui apenas ID3v1. ID3v23 adicionado.");
         }
-        else if(mp3File.hasId3v2Tag())
+        else if(mp3File.hasId3v2Tag() && mp3File.getId3v2Tag().getObseleteFormat())
         {
             String v2Track = getMp3Tag(mp3File,TagEnum.TRACK);
             String v2Artist = getMp3Tag(mp3File, TagEnum.ARTIST);
@@ -128,14 +134,7 @@ public class Mp3FileController
             setMp3Tag(mp3File,TagEnum.URL,v2Url);
             setMp3Tag(mp3File,TagEnum.ENCODER,v2Encoder);
 
-            System.out.println("ID3v2x atualizado para ID3v23.");
-        }
-        else
-        {
-            ID3v2 id3v23Tag = new ID3v23Tag();
-            mp3File.setId3v2Tag(id3v23Tag);
-
-            System.out.println("ID3v23 adicionado.");
+            System.out.println("Mp3 possui ID3v22. Atualizado para ID3v23.");
         }
 
         File file = new File(mp3File.getFilename());
