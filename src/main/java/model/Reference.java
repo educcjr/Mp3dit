@@ -9,6 +9,8 @@ public class Reference
     public Reference(char character, int place, boolean before)
     {
         this.character = character;
+        if (place<0)
+            place=1;
         this.place = place;
         this.before = before;
     }
@@ -22,6 +24,8 @@ public class Reference
     public Reference(char character, int place)
     {
         this.character = character;
+        if (place<0)
+            place=1;
         this.place = place;
     }
 
