@@ -2,7 +2,7 @@ package controller;
 
 import com.mpatric.mp3agic.Mp3File;
 import model.Reference;
-import model.TagEnum;
+import model.ID3v2Tag;
 
 public class Main
 {
@@ -26,7 +26,7 @@ public class Main
         System.out.println(controller.getMp3Tag(mp3file, TagEnum.TITLE));
         System.out.println(controller.getMp3Tag(mp3file, TagEnum.ARTIST));*/
 
-        controller.setFilenameAsTag(mp3file, new Reference('-'), TagEnum.ALBUMARTIST);
-        controller.setFilenameAsTag(mp3file, new Reference('-',true), TagEnum.TITLE);
+        controller.setFilenameAsTag(mp3file, new Reference('-'), ID3v2Tag.ALBUMARTIST);
+        controller.setFilenameAsTag(mp3file, new Reference('-',true), ID3v2Tag.TITLE);
     }
 }

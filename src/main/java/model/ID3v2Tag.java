@@ -1,6 +1,6 @@
 package model;
 
-public enum TagEnum
+public enum ID3v2Tag
 {
     TRACK,
     ARTIST,
