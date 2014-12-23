@@ -1,6 +1,7 @@
 package controller;
 
 import com.mpatric.mp3agic.*;
+import model.Reference;
 import model.TagEnum;
 
 import java.io.File;
@@ -74,6 +75,7 @@ public class Mp3FileController
             mp3File.setId3v2Tag(id3v23Tag);
 
             System.out.println("Mp3 não possui ID3. ID3v23 adicionado.");
+            saveMp3AndBackup(mp3File,"Mp3 sem ID3");
         }
         else if(mp3File.hasId3v1Tag() && !mp3File.hasId3v2Tag())
         {
@@ -96,6 +98,7 @@ public class Mp3FileController
             setMp3Tag(mp3File, TagEnum.COMMENT, v1Comment);
 
             System.out.println("Mp3 possui apenas ID3v1. ID3v23 adicionado.");
+            saveMp3AndBackup(mp3File, "Mp3 ID3v1 apenas");
         }
         else if(mp3File.hasId3v2Tag() && mp3File.getId3v2Tag().getObseleteFormat())
         {
@@ -135,10 +138,8 @@ public class Mp3FileController
             setMp3Tag(mp3File,TagEnum.ENCODER,v2Encoder);
 
             System.out.println("Mp3 possui ID3v22. Atualizado para ID3v23.");
+            saveMp3AndBackup(mp3File, "Mp3 ID3v22");
         }
-
-        File file = new File(mp3File.getFilename());
-        saveMp3(mp3File,"v23"+file.getName());
     }
 
     // Retorna tag escolhida de um mp3 (ID3v2x)
@@ -281,45 +282,6 @@ public class Mp3FileController
         return r;
     }
 
-    // Salva novo mp3 e guarda o antigo em pasta backup
-    public boolean saveMp3AndBackup(Mp3File mp3File, String backupDirectory)
-    {
-        boolean r = false;
-
-        File file = new File(mp3File.getFilename());
-        backupDirectory = backupDirectory+"/";
-
-        if (fileExists(mp3File))
-        {
-            if (new File(this.workPath+backupDirectory).mkdirs())
-            {
-                System.out.println("Diretório criado");
-            }
-
-            try
-            {
-                saveMp3(mp3File, file.getName().substring(0, file.getName().length() - 4) + "NEW.mp3");
-                Files.move(Paths.get(mp3File.getFilename()),Paths.get(this.workPath+backupDirectory+file.getName()),StandardCopyOption.REPLACE_EXISTING);
-
-                System.out.println("Novo mp3 salvo e backup criado com sucesso.");
-
-                file = new File(mp3File.getFilename().substring(0,mp3File.getFilename().length()-4)+"NEW.mp3");
-                if (file.renameTo(new File(mp3File.getFilename())))
-                {
-                    System.out.println("Arquivo renomeado.");
-                }
-
-                r = true;
-            }
-            catch(IOException ioe)
-            {
-                System.out.println("IOException(saveMp3AndBackup): "+ioe.getMessage());
-            }
-        }
-
-        return r;
-    }
-
     // Salva um mp3 com um novo nome
     public boolean saveMp3(Mp3File mp3File, String newFileName)
     {
@@ -345,5 +307,129 @@ public class Mp3FileController
         }
 
         return r;
+    }
+
+    // Salva novo mp3 e guarda o antigo em pasta backup
+    public boolean saveMp3AndBackup(Mp3File mp3File, String backupFolder)
+    {
+        boolean r = false;
+
+        File file = new File(mp3File.getFilename());
+        backupFolder = backupFolder+"/";
+
+        if (fileExists(mp3File))
+        {
+            if (new File(this.workPath+backupFolder).mkdirs())
+            {
+                System.out.println("Diretório criado");
+            }
+
+            try
+            {
+                saveMp3(mp3File, file.getName().substring(0, file.getName().length() - 4) + "NEW.mp3");
+                Files.move(Paths.get(mp3File.getFilename()), Paths.get(this.workPath + backupFolder + file.getName()), StandardCopyOption.REPLACE_EXISTING);
+
+                System.out.println("Backup criado com sucesso. (" + this.workPath + backupFolder + ")");
+
+                file = new File(mp3File.getFilename().substring(0,mp3File.getFilename().length()-4)+"NEW.mp3");
+                if (file.renameTo(new File(mp3File.getFilename())))
+                {
+                    System.out.println("Arquivo renomeado. ("+mp3File.getFilename()+")");
+                }
+
+                r = true;
+            }
+            catch(IOException ioe)
+            {
+                System.out.println("IOException(saveMp3AndBackup): "+ioe.getMessage());
+            }
+        }
+
+        return r;
+    }
+
+    public void setFilenameAsTag(Mp3File mp3File, Reference reference, TagEnum tagEnum)
+    {
+        File file = new File(mp3File.getFilename());
+
+        String newTag;
+        String filename = file.getName().substring(0,file.getName().length()-4);
+        int beginSubstring = -1;
+        int endSubstring = -1;
+
+        if (!reference.isBefore())
+        {
+            int j=0;
+            for (int i=0;i<filename.length();i++)
+            {
+                if (filename.charAt(i)==reference.getCharacter())
+                {
+                    j++;
+
+                    if (j==reference.getPlace()-1)
+                    {
+                        beginSubstring = i+1;
+                    }
+                    if (j==reference.getPlace())
+                    {
+                        endSubstring = i;
+                        if (reference.getPlace()==1)
+                        {
+                            beginSubstring = 0;
+                        }
+                        break;
+                    }
+                }
+            }
+            if (endSubstring == -1)
+            {
+                System.out.println("Begin index: "+beginSubstring);
+                newTag = filename.substring(beginSubstring);
+            }
+            else
+            {
+                System.out.println("Begin index: "+beginSubstring);
+                System.out.println("End index: "+endSubstring);
+                newTag = filename.substring(beginSubstring,endSubstring);
+            }
+        }
+        else
+        {
+            int j=0;
+            for (int i=0;i<filename.length();i++)
+            {
+                if (filename.charAt(i)==reference.getCharacter())
+                {
+                    j++;
+
+                    if (j==reference.getPlace())
+                    {
+                        beginSubstring = i+1;
+                    }
+                    if (j==reference.getPlace()+1)
+                    {
+                        endSubstring = i;
+                        break;
+                    }
+                }
+            }
+            if (endSubstring == -1)
+            {
+                System.out.println("Begin index: "+beginSubstring);
+                newTag = filename.substring(beginSubstring);
+            }
+            else
+            {
+                System.out.println("Begin index: "+beginSubstring);
+                System.out.println("End index: "+endSubstring);
+                newTag = filename.substring(beginSubstring,endSubstring);
+            }
+        }
+
+        System.out.println("newTag a ser inserida: "+newTag);
+        if(setMp3Tag(mp3File,tagEnum,newTag))
+        {
+            saveMp3AndBackup(mp3File,"bak");
+        }
     }
 }
