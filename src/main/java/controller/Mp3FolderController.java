@@ -58,6 +58,18 @@ public class Mp3FolderController {
         return r;
     }
 
+    public boolean saveMp3(ArrayList<Mp3File> mp3FileList) {
+        boolean r = true;
+
+        for (Mp3File mp3File : mp3FileList) {
+            if (!controller.saveMp3(mp3File)) {
+                r = false;
+            }
+        }
+
+        return r;
+    }
+
     public boolean saveMp3AndBackup(ArrayList<Mp3File> mp3FileList, String backupFolder) {
         boolean r = true;
 
@@ -70,5 +82,7 @@ public class Mp3FolderController {
         return r;
     }
 
-    // TODO: Método de atualização ID3
+    public void updateID3ToV23(ArrayList<Mp3File> mp3FileList) {
+        mp3FileList.forEach(controller::updateID3ToV23);
+    }
 }
