@@ -3,6 +3,7 @@ package controller;
 import com.mpatric.mp3agic.*;
 import model.ID3v2Tag;
 import model.Reference;
+import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -352,6 +353,41 @@ public class Mp3FileController {
                 System.out.println("IOException(saveMp3): " + ioe.getMessage());
             } catch (NotSupportedException nse) {
                 System.out.println("NotSupportedException(saveMp3): " + nse.getMessage());
+            }
+        }
+
+        return r;
+    }
+
+    // Salva um Mp3File mantendo o nome
+    public boolean saveMp3(Mp3File mp3File){
+        boolean r = false;
+
+        if (fileExists(mp3File)) {
+            File file = new File(mp3File.getFilename());
+            String backupFolder = "tempBak/";
+
+            if (new File(this.workPath + backupFolder).mkdirs()) {
+                System.out.println("Diretório criado (" + this.workPath + backupFolder + ")");
+            }
+
+            try {
+                this.saveMp3(mp3File, file.getName().substring(0, file.getName().length() - 4) + "NEW.mp3");
+                Files.move(Paths.get(mp3File.getFilename()), Paths.get(this.workPath + backupFolder + file.getName()), StandardCopyOption.REPLACE_EXISTING);
+
+                System.out.println("Backup criado com sucesso. (" + this.workPath + backupFolder + file.getName() + ")");
+
+                file = new File(mp3File.getFilename().substring(0, mp3File.getFilename().length() - 4) + "NEW.mp3");
+                if (file.renameTo(new File(mp3File.getFilename()))) {
+                    System.out.println("Arquivo renomeado. (" + mp3File.getFilename() + ")");
+
+                    //Files.deleteIfExists(Paths.get(this.workPath + backupFolder));
+                    FileUtils.deleteDirectory(new File(this.workPath + backupFolder));
+                }
+
+                r = true;
+            } catch (IOException ioe) {
+                System.out.println("IOException(saveMp3AndBackup): " + ioe.getMessage());
             }
         }
 
