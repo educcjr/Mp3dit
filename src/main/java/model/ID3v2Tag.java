@@ -16,5 +16,6 @@ public enum ID3v2Tag
     ALBUMARTIST,
     COPYRIGHT,
     URL,
-    ENCODER
+    ENCODER,
+    ALBUMIMAGE
 }

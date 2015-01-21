@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 
 public class Mp3FileController {
     private String workPath;
@@ -65,72 +66,72 @@ public class Mp3FileController {
     }
 
     // Atualiza ID3 de qualquer versão para ID3v23 (adiciona ID3v23 caso não tenha ID3)
-    public boolean updateID3ToV23(Mp3File mp3file) {
+    public boolean updateID3ToV23(Mp3File mp3File) {
         boolean r = false;
 
-        if (fileExists(mp3file)) {
-            if (!mp3file.hasId3v2Tag() && !mp3file.hasId3v1Tag()) {
+        if (fileExists(mp3File)) {
+            if (!mp3File.hasId3v2Tag() && !mp3File.hasId3v1Tag()) {
                 ID3v2 id3v23Tag = new ID3v23Tag();
-                mp3file.setId3v2Tag(id3v23Tag);
+                mp3File.setId3v2Tag(id3v23Tag);
 
                 System.out.println("Mp3 não possui ID3. ID3v23 adicionado.");
                 r = true;
-            } else if (mp3file.hasId3v1Tag() && !mp3file.hasId3v2Tag()) {
-                String v1Track = getMp3Tag(mp3file, ID3v2Tag.TRACK);
-                String v1Artist = getMp3Tag(mp3file, ID3v2Tag.ARTIST);
-                String v1Title = getMp3Tag(mp3file, ID3v2Tag.TITLE);
-                String v1Album = getMp3Tag(mp3file, ID3v2Tag.ALBUM);
-                String v1Year = getMp3Tag(mp3file, ID3v2Tag.YEAR);
-                String v1Genre = getMp3Tag(mp3file, ID3v2Tag.GENRE);
-                String v1Comment = getMp3Tag(mp3file, ID3v2Tag.COMMENT);
+            } else if (mp3File.hasId3v1Tag() && !mp3File.hasId3v2Tag()) {
+                String v1Track = getMp3Tag(mp3File, ID3v2Tag.TRACK);
+                String v1Artist = getMp3Tag(mp3File, ID3v2Tag.ARTIST);
+                String v1Title = getMp3Tag(mp3File, ID3v2Tag.TITLE);
+                String v1Album = getMp3Tag(mp3File, ID3v2Tag.ALBUM);
+                String v1Year = getMp3Tag(mp3File, ID3v2Tag.YEAR);
+                String v1Genre = getMp3Tag(mp3File, ID3v2Tag.GENRE);
+                String v1Comment = getMp3Tag(mp3File, ID3v2Tag.COMMENT);
 
                 ID3v2 id3v23Tag = new ID3v23Tag();
-                mp3file.setId3v2Tag(id3v23Tag);
-                setMp3Tag(mp3file, ID3v2Tag.TRACK, v1Track);
-                setMp3Tag(mp3file, ID3v2Tag.ARTIST, v1Artist);
-                setMp3Tag(mp3file, ID3v2Tag.TITLE, v1Title);
-                setMp3Tag(mp3file, ID3v2Tag.ALBUM, v1Album);
-                setMp3Tag(mp3file, ID3v2Tag.YEAR, v1Year);
-                setMp3Tag(mp3file, ID3v2Tag.GENRE, String.valueOf(v1Genre));
-                setMp3Tag(mp3file, ID3v2Tag.COMMENT, v1Comment);
+                mp3File.setId3v2Tag(id3v23Tag);
+                setMp3Tag(mp3File, ID3v2Tag.TRACK, v1Track);
+                setMp3Tag(mp3File, ID3v2Tag.ARTIST, v1Artist);
+                setMp3Tag(mp3File, ID3v2Tag.TITLE, v1Title);
+                setMp3Tag(mp3File, ID3v2Tag.ALBUM, v1Album);
+                setMp3Tag(mp3File, ID3v2Tag.YEAR, v1Year);
+                setMp3Tag(mp3File, ID3v2Tag.GENRE, String.valueOf(v1Genre));
+                setMp3Tag(mp3File, ID3v2Tag.COMMENT, v1Comment);
 
                 System.out.println("Mp3 possui apenas ID3v1. ID3v23 adicionado.");
                 r = true;
-            } else if (mp3file.hasId3v2Tag() && mp3file.getId3v2Tag().getObseleteFormat()) {
-                String v2Track = getMp3Tag(mp3file, ID3v2Tag.TRACK);
-                String v2Artist = getMp3Tag(mp3file, ID3v2Tag.ARTIST);
-                String v2Title = getMp3Tag(mp3file, ID3v2Tag.TITLE);
-                String v2Album = getMp3Tag(mp3file, ID3v2Tag.ALBUM);
-                String v2Year = getMp3Tag(mp3file, ID3v2Tag.YEAR);
-                String v2Genre = getMp3Tag(mp3file, ID3v2Tag.GENRE);
-                String v2GenreDescription = getMp3Tag(mp3file, ID3v2Tag.GENREDESCRIPTION);
-                String v2Comment = getMp3Tag(mp3file, ID3v2Tag.COMMENT);
-                String v2Composer = getMp3Tag(mp3file, ID3v2Tag.COMPOSER);
-                String v2Publisher = getMp3Tag(mp3file, ID3v2Tag.PUBLISHER);
-                String v2OriginalArtist = getMp3Tag(mp3file, ID3v2Tag.ORIGINALARTIST);
-                String v2AlbumArtist = getMp3Tag(mp3file, ID3v2Tag.ALBUMARTIST);
-                String v2Copyright = getMp3Tag(mp3file, ID3v2Tag.COPYRIGHT);
-                String v2Url = getMp3Tag(mp3file, ID3v2Tag.URL);
-                String v2Encoder = getMp3Tag(mp3file, ID3v2Tag.ENCODER);
-                mp3file.removeId3v2Tag();
+            } else if (mp3File.hasId3v2Tag() && mp3File.getId3v2Tag().getObseleteFormat()) {
+                String v2Track = getMp3Tag(mp3File, ID3v2Tag.TRACK);
+                String v2Artist = getMp3Tag(mp3File, ID3v2Tag.ARTIST);
+                String v2Title = getMp3Tag(mp3File, ID3v2Tag.TITLE);
+                String v2Album = getMp3Tag(mp3File, ID3v2Tag.ALBUM);
+                String v2Year = getMp3Tag(mp3File, ID3v2Tag.YEAR);
+                String v2Genre = getMp3Tag(mp3File, ID3v2Tag.GENRE);
+                String v2GenreDescription = getMp3Tag(mp3File, ID3v2Tag.GENREDESCRIPTION);
+                String v2Comment = getMp3Tag(mp3File, ID3v2Tag.COMMENT);
+                String v2Composer = getMp3Tag(mp3File, ID3v2Tag.COMPOSER);
+                String v2Publisher = getMp3Tag(mp3File, ID3v2Tag.PUBLISHER);
+                String v2OriginalArtist = getMp3Tag(mp3File, ID3v2Tag.ORIGINALARTIST);
+                String v2AlbumArtist = getMp3Tag(mp3File, ID3v2Tag.ALBUMARTIST);
+                String v2Copyright = getMp3Tag(mp3File, ID3v2Tag.COPYRIGHT);
+                String v2Url = getMp3Tag(mp3File, ID3v2Tag.URL);
+                String v2Encoder = getMp3Tag(mp3File, ID3v2Tag.ENCODER);
+                mp3File.removeId3v2Tag();
 
                 ID3v2 id3v23Tag = new ID3v23Tag();
-                mp3file.setId3v2Tag(id3v23Tag);
-                setMp3Tag(mp3file, ID3v2Tag.TRACK, v2Track);
-                setMp3Tag(mp3file, ID3v2Tag.ARTIST, v2Artist);
-                setMp3Tag(mp3file, ID3v2Tag.TITLE, v2Title);
-                setMp3Tag(mp3file, ID3v2Tag.ALBUM, v2Album);
-                setMp3Tag(mp3file, ID3v2Tag.YEAR, v2Year);
-                setMp3Tag(mp3file, ID3v2Tag.GENRE, String.valueOf(v2Genre));
-                setMp3Tag(mp3file, ID3v2Tag.GENREDESCRIPTION, v2GenreDescription);
-                setMp3Tag(mp3file, ID3v2Tag.COMMENT, v2Comment);
-                setMp3Tag(mp3file, ID3v2Tag.COMPOSER, v2Composer);
-                setMp3Tag(mp3file, ID3v2Tag.PUBLISHER, v2Publisher);
-                setMp3Tag(mp3file, ID3v2Tag.ORIGINALARTIST, v2OriginalArtist);
-                setMp3Tag(mp3file, ID3v2Tag.ALBUMARTIST, v2AlbumArtist);
-                setMp3Tag(mp3file, ID3v2Tag.COPYRIGHT, v2Copyright);
-                setMp3Tag(mp3file, ID3v2Tag.URL, v2Url);
-                setMp3Tag(mp3file, ID3v2Tag.ENCODER, v2Encoder);
+                mp3File.setId3v2Tag(id3v23Tag);
+                setMp3Tag(mp3File, ID3v2Tag.TRACK, v2Track);
+                setMp3Tag(mp3File, ID3v2Tag.ARTIST, v2Artist);
+                setMp3Tag(mp3File, ID3v2Tag.TITLE, v2Title);
+                setMp3Tag(mp3File, ID3v2Tag.ALBUM, v2Album);
+                setMp3Tag(mp3File, ID3v2Tag.YEAR, v2Year);
+                setMp3Tag(mp3File, ID3v2Tag.GENRE, String.valueOf(v2Genre));
+                setMp3Tag(mp3File, ID3v2Tag.GENREDESCRIPTION, v2GenreDescription);
+                setMp3Tag(mp3File, ID3v2Tag.COMMENT, v2Comment);
+                setMp3Tag(mp3File, ID3v2Tag.COMPOSER, v2Composer);
+                setMp3Tag(mp3File, ID3v2Tag.PUBLISHER, v2Publisher);
+                setMp3Tag(mp3File, ID3v2Tag.ORIGINALARTIST, v2OriginalArtist);
+                setMp3Tag(mp3File, ID3v2Tag.ALBUMARTIST, v2AlbumArtist);
+                setMp3Tag(mp3File, ID3v2Tag.COPYRIGHT, v2Copyright);
+                setMp3Tag(mp3File, ID3v2Tag.URL, v2Url);
+                setMp3Tag(mp3File, ID3v2Tag.ENCODER, v2Encoder);
 
                 System.out.println("Mp3 possui ID3v22. Atualizado para ID3v23.");
                 r = true;
