@@ -1,7 +1,6 @@
 package model;
 
-public enum ID3v2Tag
-{
+public enum ID3v2Tag {
     TRACK,
     ARTIST,
     TITLE,
