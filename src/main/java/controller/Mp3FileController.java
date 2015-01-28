@@ -7,10 +7,10 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.Arrays;
 
 public class Mp3FileController {
     private String workPath;
@@ -66,8 +66,8 @@ public class Mp3FileController {
     }
 
     // Atualiza ID3 de qualquer versão para ID3v23 (adiciona ID3v23 caso não tenha ID3)
-    public boolean updateID3ToV23(Mp3File mp3File) {
-        boolean r = false;
+    public int updateID3ToV23(Mp3File mp3File) {
+        int r = 0;
 
         if (fileExists(mp3File)) {
             if (!mp3File.hasId3v2Tag() && !mp3File.hasId3v1Tag()) {
@@ -75,7 +75,7 @@ public class Mp3FileController {
                 mp3File.setId3v2Tag(id3v23Tag);
 
                 System.out.println("Mp3 não possui ID3. ID3v23 adicionado.");
-                r = true;
+                r = 1;
             } else if (mp3File.hasId3v1Tag() && !mp3File.hasId3v2Tag()) {
                 String v1Track = getMp3Tag(mp3File, ID3v2Tag.TRACK);
                 String v1Artist = getMp3Tag(mp3File, ID3v2Tag.ARTIST);
@@ -96,7 +96,7 @@ public class Mp3FileController {
                 setMp3Tag(mp3File, ID3v2Tag.COMMENT, v1Comment);
 
                 System.out.println("Mp3 possui apenas ID3v1. ID3v23 adicionado.");
-                r = true;
+                r = 2;
             } else if (mp3File.hasId3v2Tag() && mp3File.getId3v2Tag().getObseleteFormat()) {
                 String v2Track = getMp3Tag(mp3File, ID3v2Tag.TRACK);
                 String v2Artist = getMp3Tag(mp3File, ID3v2Tag.ARTIST);
@@ -113,6 +113,7 @@ public class Mp3FileController {
                 String v2Copyright = getMp3Tag(mp3File, ID3v2Tag.COPYRIGHT);
                 String v2Url = getMp3Tag(mp3File, ID3v2Tag.URL);
                 String v2Encoder = getMp3Tag(mp3File, ID3v2Tag.ENCODER);
+                String v2AlbumImage = getMp3Tag(mp3File, ID3v2Tag.ALBUMIMAGE);
                 mp3File.removeId3v2Tag();
 
                 ID3v2 id3v23Tag = new ID3v23Tag();
@@ -132,9 +133,10 @@ public class Mp3FileController {
                 setMp3Tag(mp3File, ID3v2Tag.COPYRIGHT, v2Copyright);
                 setMp3Tag(mp3File, ID3v2Tag.URL, v2Url);
                 setMp3Tag(mp3File, ID3v2Tag.ENCODER, v2Encoder);
+                setMp3Tag(mp3File, ID3v2Tag.ALBUMIMAGE, v2AlbumImage);
 
                 System.out.println("Mp3 possui ID3v22. Atualizado para ID3v23.");
-                r = true;
+                r = 3;
             }
         }
 
@@ -192,6 +194,13 @@ public class Mp3FileController {
                     break;
                 case ENCODER:
                     mp3Tag = mp3ID3v2Tag.getEncoder();
+                    break;
+                case ALBUMIMAGE:
+                    try {
+                        mp3Tag = new String(mp3ID3v2Tag.getAlbumImage(), "Cp1252");
+                    } catch (UnsupportedEncodingException uee) {
+                        System.out.println(uee.getMessage());
+                    }
                     break;
             }
         }
@@ -256,6 +265,8 @@ public class Mp3FileController {
                 case ENCODER:
                     mp3ID3v2Tag.setEncoder(newTag);
                     break;
+                case ALBUMIMAGE:
+                    mp3ID3v2Tag.setAlbumImage(newTag.getBytes(),"teste");
             }
 
             if (r) {
@@ -361,7 +372,7 @@ public class Mp3FileController {
     }
 
     // Salva um Mp3File mantendo o nome
-    public boolean saveMp3(Mp3File mp3File){
+    public boolean saveMp3(Mp3File mp3File) {
         boolean r = false;
 
         if (fileExists(mp3File)) {
